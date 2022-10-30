@@ -10,7 +10,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun LetterInput(
-    handleKeyboardClick: () -> Unit
+    onClick: (Char) -> Unit
 ) {
     Column {
         var c = 'A'
@@ -20,7 +20,7 @@ fun LetterInput(
         ) {
             while (c <= 'I') {
                 LetterButton(letter = c) {
-                    handleKeyboardClick()
+                    onClick(c)
                 }
                 ++c
             }
@@ -31,7 +31,7 @@ fun LetterInput(
         ) {
             while (c <= 'R') {
                 LetterButton(letter = c) {
-                    handleKeyboardClick()
+                    onClick(c)
                 }
                 ++c
             }
@@ -42,10 +42,11 @@ fun LetterInput(
         ) {
             while (c <= 'Z') {
                 LetterButton(letter = c) {
-                    handleKeyboardClick()
+                    onClick(c)
                 }
                 ++c
             }
         }
+        c = 'A'
     }
 }

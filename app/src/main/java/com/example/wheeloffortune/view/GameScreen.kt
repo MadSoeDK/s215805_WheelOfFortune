@@ -1,6 +1,7 @@
 package com.example.wheeloffortune.view
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
@@ -12,16 +13,26 @@ import com.example.wheeloffortune.view.composables.LetterInput
 fun GameScreen(
     viewModel: GameViewModel
 ) {
-    viewModel.startGame()
     Column {
+        Text(text = viewModel.gameState.lettersUsed)
+        Text(text = viewModel.gameState.lives.toString())
+        Text(text = viewModel.gameState.category.toString())
+        Text(text = viewModel.gameState.points.toString())
+        Text(text = viewModel.gameState.word)
+        Text(text = viewModel.gameState.guessedWord)
+
+        Button(onClick = {  } ) {
+            Text(text = viewModel.getGuessedWord())
+        }
+
         if(viewModel.keyboard) {
-            LetterInput { viewModel.onLetterClick() }
+            LetterInput { viewModel.onLetterClick(it) }
         }
     }
 }
 
 @Composable
-@Preview(showBackground = true, device = "Pixel_3a")
+@Preview(showBackground = true)
 fun GameScreenPreview() {
     GameScreen(viewModel = viewModel())
 }
