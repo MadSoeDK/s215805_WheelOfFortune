@@ -17,15 +17,11 @@ fun LetterButton (
     letter: Char,
     onButtonClick: (Char) -> Unit
 ) {
-    Box(modifier = Modifier.padding(6.dp, 0.dp).clickable { onButtonClick(letter) }) {
-        Box(modifier = Modifier.background(Color.Gray)) {
-            Box (
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .padding(10.dp, 10.dp)
-            ) {
-                Text(text = letter.toString(), Modifier.width(10.dp))
-            }
-        }
+    Box (
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.background(Color.Gray).clickable { onButtonClick(letter) }
+            .padding(10.dp, 14.dp)
+    ) {
+        Text(text = letter.toString(), Modifier.width(10.dp))
     }
 }
