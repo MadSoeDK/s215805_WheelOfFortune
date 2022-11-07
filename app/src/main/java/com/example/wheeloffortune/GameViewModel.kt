@@ -1,56 +1,58 @@
 package com.example.wheeloffortune
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import com.example.wheeloffortune.model.Category
 import com.example.wheeloffortune.model.GameState
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlin.random.Random
 
 class GameViewModel : ViewModel() {
 
-    var keyboard by mutableStateOf(true)
-    var gameState by mutableStateOf(GameState(null))
-    var spinResult = 0
-
-    fun onLetterClick(letter: Char) {
-        //guessedLetter = letter.toString();
-        guessLetter(letter)
-        //keyboard = false
-    }
-
-    fun getGuessedWord(): String {
-        return gameState.guessedWord
-    }
+    var keyboard by mutableStateOf(false)
+    var category by mutableStateOf(Category.NoCategory)
+    var lives by mutableStateOf(5)
+    var points by mutableStateOf(0)
+    var pointMultiplier by mutableStateOf(0)
+    var lettersUsed by mutableStateOf("")
+    var guessedWord by mutableStateOf("")
+    var wordToGuess by mutableStateOf("")
+    var gameMessage by mutableStateOf("")
 
     init {
-        gameState.category = Category.Cities
-        gameState.word = gameState.category!!.words.random()
+        category = Category.Cities
+        wordToGuess = category.words.random()
 
         val sb = StringBuilder()
-        gameState.word.forEach {
+        wordToGuess.forEach {
             sb.append("_")
         }
-        gameState.guessedWord = sb.toString()
+        guessedWord = sb.toString()
+    }
+
+    fun onLetterClick(letter: Char) {
+        guessLetter(letter)
+        keyboard = false
     }
 
     private fun guessLetter (guessedLetter: Char) {
-        gameState.lettersUsed += guessedLetter
+        lettersUsed += guessedLetter
 
-        if(gameState.word.lowercase().contains(guessedLetter.lowercase())) {
+        if(wordToGuess.lowercase().contains(guessedLetter.lowercase())) {
             showLetter(guessedLetter)
-            gameState.points += spinResult
+            points += pointMultiplier
         } else {
-            gameState.lives--
+            lives--
         }
-        spinResult = 0
+        pointMultiplier = 0
     }
 
     private fun showLetter(letter: Char) {
-        gameState.word.forEachIndexed { index, it ->
+        wordToGuess.forEachIndexed { index, it ->
             if(it.lowercase() == letter.lowercase()) {
-                gameState.guessedWord = gameState.guessedWord.replaceRange(index,index+1,letter.toString())
+                guessedWord = guessedWord.replaceRange(index,index+1,letter.toString())
             }
         }
     }
@@ -58,41 +60,42 @@ class GameViewModel : ViewModel() {
     fun spinWheel() {
         when (Random.nextInt(0,8)) {
             0 -> {
-                gameState.lives++
-                gameState.msg = "Extra turn! \nYou gain a life!"
+                lives++
+                gameMessage = "Extra turn! \nYou gain a life!"
             }
             1 -> {
-                gameState.lives--
-                gameState.msg = "Miss Turn! \nYou loose a life!"
+                lives--
+                gameMessage = "Miss Turn! \nYou loose a life!"
             }
             2 -> {
-                gameState.points = 0
-                gameState.msg = "Bankrupt!\nYou loose all points!"
+                points = 0
+                gameMessage = "Bankrupt!\nYou loose all points!"
             }
             3 -> {
-                spinResult += 25
-                gameState.msg = "25!\nEarn points on occurrences."
+                pointMultiplier += 25
+                gameMessage = "25!\nEarn points on occurrences."
             }
             4 -> {
-                spinResult += 50
-                gameState.msg = "50!\nEarn points on occurrences."
+                pointMultiplier += 50
+                gameMessage = "50!\nEarn points on occurrences."
             }
             5 -> {
-                spinResult += 100
-                gameState.msg = "100!\nEarn points on occurrences."
+                pointMultiplier += 100
+                gameMessage = "100!\nEarn points on occurrences."
             }
             6 -> {
-                spinResult += 1000
-                gameState.msg = "1000!\nEarn points on occurrences."
+                pointMultiplier += 1000
+                gameMessage = "1000!\nEarn points on occurrences."
             }
             7 -> {
-                spinResult += 1500
-                gameState.msg = "1500!\nEarn points on occurrences."
+                pointMultiplier += 1500
+                gameMessage = "1500!\nEarn points on occurrences."
             }
             8 -> {
-                spinResult += 2000
-                gameState.msg = "2000!\nEarn points on occurrences."
+                pointMultiplier += 2000
+                gameMessage = "2000!\nEarn points on occurrences."
             }
         }
+        keyboard = true
     }
 }
