@@ -40,11 +40,13 @@ class GameViewModel : ViewModel() {
 
     private fun guessLetter (guessedLetter: Char) {
         lettersUsed += guessedLetter
+        val occurrences: Int
 
         if(wordToGuess.lowercase().contains(guessedLetter.lowercase())) {
             showLetter(guessedLetter)
-            points += pointMultiplier
-            gameMessage = "Correct guess. You gain $pointMultiplier points!"
+            occurrences = wordToGuess.count{ it.uppercase() == guessedLetter.toString() }//wordToGuess.uppercase().contains(guessedLetter) }
+            points += pointMultiplier * occurrences
+            gameMessage = "$occurrences occurrences. You gain " + pointMultiplier * occurrences + " points!"
         } else {
             lives--
             gameMessage = "Incorrect guess. You loose a life!"
@@ -65,18 +67,22 @@ class GameViewModel : ViewModel() {
     }
 
     fun spinWheel() {
+        keyboard = true
         when (Random.nextInt(0,8)) {
             0 -> {
                 lives++
-                gameMessage = "Extra turn! \nYou gain a life!"
+                gameMessage = "You gain a life! Spin again"
+                keyboard = false
             }
             1 -> {
                 lives--
-                gameMessage = "Miss Turn! \nYou loose a life!"
+                gameMessage = "Miss Turn! \nYou loose a life! Spin again"
+                keyboard = false
             }
             2 -> {
                 points = 0
-                gameMessage = "Bankrupt!\nYou loose all points!"
+                gameMessage = "Bankrupt!\nYou loose all points! Spin again"
+                keyboard = false
             }
             3 -> {
                 pointMultiplier += 25
@@ -103,7 +109,6 @@ class GameViewModel : ViewModel() {
                 gameMessage = "2000!\nEarn points on occurrences."
             }
         }
-        keyboard = true
     }
 
     fun playAgain() {
