@@ -28,6 +28,10 @@ fun GameScreen(
         if(viewModel.keyboard) {
             LetterInput { viewModel.onLetterClick(it) }
         }
+        
+        Button(onClick = { viewModel.spinWheel() }) {
+            Text(text = "Spin the wheel!")
+        }
     }
 }
 

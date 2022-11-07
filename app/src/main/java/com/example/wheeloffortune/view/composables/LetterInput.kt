@@ -9,7 +9,8 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun LetterInput(
-    onClick: (Char) -> Unit
+    lettersUsed: String,
+    onClick: (Char) -> Unit,
 ) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(50.dp),
@@ -20,7 +21,10 @@ fun LetterInput(
         val alphabets = CharRange('A','Z')
         alphabets.forEach {
             item {
-                LetterButton(letter = it) {
+                var enabled = true
+                if (lettersUsed.contains(it))
+                    enabled = false
+                LetterButton(letter = it, enabled = enabled) {
                     onClick(it)
                 }
             }

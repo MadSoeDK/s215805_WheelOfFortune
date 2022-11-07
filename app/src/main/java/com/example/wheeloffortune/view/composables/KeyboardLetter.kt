@@ -15,11 +15,15 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun LetterButton (
     letter: Char,
-    onButtonClick: (Char) -> Unit
+    enabled: Boolean,
+    onButtonClick: (Char) -> Unit,
 ) {
+    var color = Color.Transparent
+    if(!enabled)
+        color = Color.LightGray
     Box (
         contentAlignment = Alignment.Center,
-        modifier = Modifier.background(Color.Gray).clickable { onButtonClick(letter) }
+        modifier = Modifier.background(color).clickable(enabled = enabled) { onButtonClick(letter) }
             .padding(10.dp, 14.dp)
     ) {
         Text(text = letter.toString(), Modifier.width(10.dp))
