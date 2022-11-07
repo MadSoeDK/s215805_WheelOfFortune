@@ -3,14 +3,11 @@ package com.example.wheeloffortune
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import com.example.wheeloffortune.model.Category
-import com.example.wheeloffortune.model.GameState
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlin.random.Random
 
 class GameViewModel : ViewModel() {
 
+    var gameWon by mutableStateOf(false)
     var keyboard by mutableStateOf(false)
     var category by mutableStateOf(Category.NoCategory)
     var lives by mutableStateOf(5)
@@ -22,7 +19,11 @@ class GameViewModel : ViewModel() {
     var gameMessage by mutableStateOf("")
 
     init {
-        category = Category.Cities
+        startGame()
+    }
+
+    private fun startGame() {
+        category = randomCategory()
         wordToGuess = category.words.random()
 
         val sb = StringBuilder()
@@ -43,10 +44,16 @@ class GameViewModel : ViewModel() {
         if(wordToGuess.lowercase().contains(guessedLetter.lowercase())) {
             showLetter(guessedLetter)
             points += pointMultiplier
+            gameMessage = "Correct guess. You gain $pointMultiplier points!"
         } else {
             lives--
+            gameMessage = "Incorrect guess. You loose a life!"
         }
         pointMultiplier = 0
+
+        if(wordToGuess.lowercase() == guessedWord.lowercase()) {
+            gameWon = true
+        }
     }
 
     private fun showLetter(letter: Char) {
@@ -97,5 +104,23 @@ class GameViewModel : ViewModel() {
             }
         }
         keyboard = true
+    }
+
+    fun playAgain() {
+        gameWon = false
+        keyboard = false
+        category = Category.NoCategory
+        lives = 5
+        points = 0
+        pointMultiplier = 0
+        lettersUsed = ""
+        guessedWord = ""
+        wordToGuess = ""
+        gameMessage =""
+        startGame()
+    }
+
+    private fun randomCategory(): Category {
+        return Category.values()[Random.nextInt(Category.values().size - 1)]
     }
 }
