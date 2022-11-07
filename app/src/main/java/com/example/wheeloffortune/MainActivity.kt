@@ -33,6 +33,7 @@ class MainActivity : ComponentActivity() {
                         startDestination = Screen.GameScreen.route
                     ) {
                         composable(Screen.GameScreen.route) {
+                            // TODO: Dark mode...
                             GameScreen(viewModel())
                         }
                     }

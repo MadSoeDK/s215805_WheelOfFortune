@@ -2,7 +2,10 @@ package com.example.wheeloffortune
 
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.wheeloffortune.model.Category
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 class GameViewModel : ViewModel() {
@@ -17,6 +20,11 @@ class GameViewModel : ViewModel() {
     var guessedWord by mutableStateOf("")
     var wordToGuess by mutableStateOf("")
     var gameMessage by mutableStateOf("")
+    var isSpinning by mutableStateOf(false)
+    var spinResult by mutableStateOf(0f)
+    val events = listOf (
+        "Extra life", "Miss turn", "Bankrupt", "25", "50", "100", "500", "1500"
+    )
 
     init {
         startGame()
@@ -44,7 +52,7 @@ class GameViewModel : ViewModel() {
 
         if(wordToGuess.lowercase().contains(guessedLetter.lowercase())) {
             showLetter(guessedLetter)
-            occurrences = wordToGuess.count{ it.uppercase() == guessedLetter.toString() }//wordToGuess.uppercase().contains(guessedLetter) }
+            occurrences = wordToGuess.count{ it.uppercase() == guessedLetter.toString() }
             points += pointMultiplier * occurrences
             gameMessage = "$occurrences occurrences. You gain " + pointMultiplier * occurrences + " points!"
         } else {
@@ -66,49 +74,46 @@ class GameViewModel : ViewModel() {
         }
     }
 
-    fun spinWheel() {
-        keyboard = true
-        when (Random.nextInt(0,8)) {
-            0 -> {
+    suspend fun spinWheel() {
+        val eventIndex = events.indexOf(events.random())
+        spinResult = ((eventIndex+1) * 45f)
+
+        delay(4000)
+        when (events[eventIndex]) {
+            events[0] -> {
                 lives++
                 gameMessage = "You gain a life! Spin again"
-                keyboard = false
             }
-            1 -> {
+            events[1] -> {
                 lives--
-                gameMessage = "Miss Turn! \nYou loose a life! Spin again"
-                keyboard = false
+                gameMessage = "Miss turn! \nYou loose a life! Spin again"
             }
-            2 -> {
+            events[2] -> {
                 points = 0
                 gameMessage = "Bankrupt!\nYou loose all points! Spin again"
-                keyboard = false
             }
-            3 -> {
+            events[3] -> {
                 pointMultiplier += 25
                 gameMessage = "25!\nEarn points on occurrences."
             }
-            4 -> {
+            events[4] -> {
                 pointMultiplier += 50
                 gameMessage = "50!\nEarn points on occurrences."
             }
-            5 -> {
+            events[5] -> {
                 pointMultiplier += 100
                 gameMessage = "100!\nEarn points on occurrences."
             }
-            6 -> {
-                pointMultiplier += 1000
-                gameMessage = "1000!\nEarn points on occurrences."
+            events[6] -> {
+                pointMultiplier += 500
+                gameMessage = "500!\nEarn points on occurrences."
             }
-            7 -> {
+            events[7] -> {
                 pointMultiplier += 1500
                 gameMessage = "1500!\nEarn points on occurrences."
             }
-            8 -> {
-                pointMultiplier += 2000
-                gameMessage = "2000!\nEarn points on occurrences."
-            }
         }
+        keyboard = eventIndex > 3
     }
 
     fun playAgain() {
@@ -126,6 +131,13 @@ class GameViewModel : ViewModel() {
     }
 
     private fun randomCategory(): Category {
+        /*var i = 0
+        while(i < 10) {
+            println(IntRange(0,1).random())
+            i += 1
+        }*/
+        // TODO: Random not truly random
+        //println(Rando m.nextInt(Category.values().size - 1))
         return Category.values()[Random.nextInt(Category.values().size - 1)]
     }
 }

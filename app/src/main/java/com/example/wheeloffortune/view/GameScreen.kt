@@ -1,10 +1,14 @@
 package com.example.wheeloffortune.view
 
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -16,6 +20,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.wheeloffortune.GameViewModel
 import com.example.wheeloffortune.view.composables.LetterInput
+import com.commandiron.spin_wheel_compose.DefaultSpinWheel
+import com.commandiron.spin_wheel_compose.SpinWheelDefaults
+import kotlinx.coroutines.launch
 
 @Composable
 fun GameScreen(
@@ -23,15 +30,23 @@ fun GameScreen(
 ) {
     Column(
         modifier = Modifier
-            .padding(10.dp, 30.dp)
+            .padding(10.dp, 16.dp)
             .fillMaxHeight(),
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
-        if(!viewModel.gameWon) {
+        if (!viewModel.gameWon) {
             Column {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(0.dp, 12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = "Score: " + viewModel.points.toString())
+                    Text(text = "Lives: " + viewModel.lives.toString())
+                }
                 Column(
                     modifier = Modifier
-                        .background(Color.LightGray)
                         .fillMaxWidth()
                         .padding(0.dp, 30.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -40,40 +55,60 @@ fun GameScreen(
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(text = viewModel.guessedWord, fontSize = 24.sp, letterSpacing = 5.sp)
                 }
-                Column {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(0.dp, 12.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(text = "Score: " + viewModel.points.toString())
-                        Text(text = "Lives: " + viewModel.lives.toString())
-                    }
-                    Text(text = "Letters used: " + viewModel.lettersUsed)
-                }
+                //Text(text = "Letters used: " + viewModel.lettersUsed)
             }
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(0.dp, 12.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Box (
+                contentAlignment = Alignment.BottomCenter
             ) {
-                Text(
-                    text = viewModel.gameMessage,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.padding(0.dp, 50.dp),
-                    textAlign = TextAlign.Center
-                )
-
-                if(viewModel.keyboard) {
-                    LetterInput(viewModel.lettersUsed) { viewModel.onLetterClick(it) }
-                } else {
-                    Button(onClick = { viewModel.spinWheel() }) {
-                        Text(text = "Spin the wheel!")
+                Column (
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Top
+                ) {
+                    Text(
+                        text = viewModel.gameMessage,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(30.dp))
+                    DefaultSpinWheel(
+                        dimensions = SpinWheelDefaults.spinWheelDimensions(
+                            spinWheelSize = 280.dp
+                        ),
+                        animationAttr = SpinWheelDefaults.spinWheelAnimationAttr(
+                            pieCount = viewModel.events.size,
+                            durationMillis = 3000,
+                            //delayMillis = 200,
+                            //rotationPerSecond = 2f,
+                            easing = LinearOutSlowInEasing,
+                            //startDegree = 180f,
+                        ),
+                        isSpinning = viewModel.isSpinning,
+                        onFinish = { viewModel.isSpinning = false },
+                        resultDegree = viewModel.spinResult
+                    ) { pieIndex ->
+                        Text(text = viewModel.events[pieIndex])
                     }
+                    Spacer(modifier = Modifier.height(30.dp))
+                    if (!viewModel.keyboard) {
+                        val coroutineScope = rememberCoroutineScope()
+                        println(viewModel.spinResult)
+                        Button(
+                            onClick = {
+                                viewModel.isSpinning = true
+                                coroutineScope.launch {
+                                    viewModel.spinWheel()
+                                }
+                            },
+                            content = { Text(text = "Spin the wheel!", fontSize = 18.sp) }
+                        )
+                    }
+                }
+
+                if (viewModel.keyboard) {
+                    LetterInput(viewModel.lettersUsed) { viewModel.onLetterClick(it) }
                 }
             }
         } else {
@@ -82,6 +117,7 @@ fun GameScreen(
             }
         }
     }
+
 }
 
 @Composable
