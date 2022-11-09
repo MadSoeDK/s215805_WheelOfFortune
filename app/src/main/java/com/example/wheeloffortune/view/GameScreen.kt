@@ -29,82 +29,77 @@ fun GameScreen(
             .fillMaxHeight(),
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
-        if (!viewModel.gameWon) {
-            Column {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(0.dp, 12.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(text = "Score: " + viewModel.points.toString())
-                    Text(text = "Lives: " + viewModel.lives.toString())
-                }
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(0.dp, 30.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(text = viewModel.category.toString())
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Text(text = viewModel.guessedWord, fontSize = 24.sp, letterSpacing = 5.sp)
-                }
-                //Text(text = "Letters used: " + viewModel.lettersUsed)
-            }
-            Box (
-                contentAlignment = Alignment.BottomCenter
+        Column {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(0.dp, 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Column (
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Top
-                ) {
-                    Text(
-                        text = viewModel.gameMessage,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(30.dp))
-                    /**
-                     * Spinner by using this library:     // https://github.com/commandiron/SpinWheelCompose
-                     * @author commandiron
-                     */
-                    DefaultSpinWheel(
-                        dimensions = SpinWheelDefaults.spinWheelDimensions(
-                            spinWheelSize = 280.dp
-                        ),
-                        animationAttr = SpinWheelDefaults.spinWheelAnimationAttr(
-                            durationMillis = 3500,
-                            easing = LinearOutSlowInEasing,
-                            autoResetDelay = 0
-                        ),
-                        isSpinning = viewModel.isSpinning,
-                        resultDegree = Random.nextFloat() * 360f,
-                        onFinish = { viewModel.handleSpinResult(it) }
-                    ){ pieIndex ->
-                        Text(text = viewModel.events[pieIndex])
-                    }
-                    Spacer(modifier = Modifier.height(30.dp))
-                    if (!viewModel.keyboard && !viewModel.isSpinning) {
-                        Button(
-                            onClick = { viewModel.isSpinning = true },
-                            content = { Text(text = "Spin the wheel!", fontSize = 18.sp) }
-                        )
-                    } else {
-                        Spacer(modifier = Modifier.height(47.5.dp))
-                    }
-                }
+                Text(text = "Score: " + viewModel.points.toString())
+                Text(text = "Lives: " + viewModel.lives.toString())
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(0.dp, 30.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(text = viewModel.category.toString())
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(text = viewModel.hiddenWord, fontSize = 24.sp, letterSpacing = 5.sp)
+            }
+        }
+        Box (
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            Column (
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Top
+            ) {
+                Text(
+                    text = viewModel.gameMessage,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Medium,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(30.dp))
 
-                if (viewModel.keyboard) {
-                    LetterInput(viewModel.lettersUsed) { viewModel.onLetterClick(it) }
+                /**
+                 * Spin Wheel
+                 * https://github.com/commandiron/SpinWheelCompose
+                 * @author commandiron
+                 */
+                DefaultSpinWheel(
+                    dimensions = SpinWheelDefaults.spinWheelDimensions(
+                        spinWheelSize = 280.dp
+                    ),
+                    animationAttr = SpinWheelDefaults.spinWheelAnimationAttr(
+                        durationMillis = 3500,
+                        easing = LinearOutSlowInEasing,
+                        autoResetDelay = 0
+                    ),
+                    isSpinning = viewModel.isSpinning,
+                    resultDegree = Random.nextFloat() * 360f,
+                    onFinish = { viewModel.handleSpinResult(it) }
+                ){ pieIndex ->
+                    Text(text = viewModel.events[pieIndex])
+                }
+                Spacer(modifier = Modifier.height(30.dp))
+                if (!viewModel.showKeyboard && !viewModel.isSpinning) {
+                    Button(
+                        onClick = { viewModel.isSpinning = true },
+                        content = { Text(text = "Spin the wheel!", fontSize = 18.sp) }
+                    )
+                } else {
+                    Spacer(modifier = Modifier.height(47.5.dp))
                 }
             }
-        } else {
-            Button(onClick = { viewModel.playAgain() }) {
-                Text(text = "You have won! Play again")
+
+            if (viewModel.showKeyboard) {
+                LetterInput(viewModel.lettersUsed) { viewModel.onLetterClick(it) }
             }
         }
     }

@@ -2,19 +2,22 @@ package com.example.wheeloffortune
 
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
+import androidx.navigation.NavController
 import com.example.wheeloffortune.model.Category
 import kotlin.random.Random
 
-class GameViewModel : ViewModel() {
+class GameViewModel(
+    private val navController: NavController
+) : ViewModel() {
 
-    var gameWon by mutableStateOf(false)
-    var keyboard by mutableStateOf(false)
+    var lettersUsed by mutableStateOf("")
+    var showKeyboard by mutableStateOf(false)
     var category by mutableStateOf(Category.NoCategory)
     var lives by mutableStateOf(5)
     var points by mutableStateOf(0)
-    var pointMultiplier by mutableStateOf(0)
-    var lettersUsed by mutableStateOf("")
-    var guessedWord by mutableStateOf("")
+    var spinResult by mutableStateOf(0)
+
+    var hiddenWord by mutableStateOf("")
     var wordToGuess by mutableStateOf("")
     var gameMessage by mutableStateOf("")
     var isSpinning by mutableStateOf(false)
@@ -26,50 +29,63 @@ class GameViewModel : ViewModel() {
         startGame()
     }
 
+    /**
+     * Start the game by choosing a random category and word, and build the string for the hidden word
+     */
     private fun startGame() {
-        category = randomCategory()
+        // TODO: Random not truly random
+        category = Category.values()[Random.nextInt(Category.values().size - 1)]
         wordToGuess = category.words.random()
 
         val sb = StringBuilder()
         wordToGuess.forEach {
             sb.append("_")
         }
-        guessedWord = sb.toString()
+        hiddenWord = sb.toString()
     }
 
+    /**
+     * OnClickHandler for each letter on the keyboard
+     */
     fun onLetterClick(letter: Char) {
         guessLetter(letter)
-        keyboard = false
+        showKeyboard = false
     }
 
+    /**
+     * Check if the letter pressed on the keyboard, have occurrences in the word to guess
+     */
     private fun guessLetter (guessedLetter: Char) {
         lettersUsed += guessedLetter
-        val occurrences: Int
+        var occurrences = 0
 
-        if(wordToGuess.lowercase().contains(guessedLetter.lowercase())) {
-            showLetter(guessedLetter)
-            occurrences = wordToGuess.count{ it.uppercase() == guessedLetter.toString() }
-            points += pointMultiplier * occurrences
-            gameMessage = "$occurrences occurrences. You gain " + pointMultiplier * occurrences + " points!"
+        // For each char in wordToGuess, check if it is equal to the guessedLetter.
+        // Then replace the "_" with the guessedLetter and increment the occurence
+        wordToGuess.forEachIndexed { index, it ->
+            if(it.lowercase() == guessedLetter.lowercase()) {
+                hiddenWord = hiddenWord.replaceRange(index,index+1,guessedLetter.toString())
+                occurrences++;
+            }
+        }
+
+        // If there is more than 1 occurence, then the guess is correct
+        if(occurrences >= 1) {
+            points += spinResult * occurrences
+            gameMessage = "$occurrences occurrences. You gain " + spinResult * occurrences + " points!"
         } else {
+            // If 0 occurences then the guess is incorrect, and the player looses a life.
             lives--
             gameMessage = "Incorrect guess. You loose a life!"
         }
-        pointMultiplier = 0
 
-        if(wordToGuess.lowercase() == guessedWord.lowercase()) {
-            gameWon = true
-        }
+        spinResult = 0
+
+        // TODO: Check for winner/loser
     }
 
-    private fun showLetter(letter: Char) {
-        wordToGuess.forEachIndexed { index, it ->
-            if(it.lowercase() == letter.lowercase()) {
-                guessedWord = guessedWord.replaceRange(index,index+1,letter.toString())
-            }
-        }
-    }
-
+    /**
+     * Handles the resultIndex returned from the spinnerWheel, and decides the corresponding message
+     */
     fun handleSpinResult(resultIndex: Int) {
         isSpinning = false
 
@@ -87,45 +103,42 @@ class GameViewModel : ViewModel() {
                 gameMessage = "Bankrupt!\nYou loose all points! Spin again"
             }
             events[3] -> {
-                pointMultiplier += 25
+                spinResult += 25
                 gameMessage = "25!\nEarn points on occurrences."
             }
             events[4] -> {
-                pointMultiplier += 50
+                spinResult += 50
                 gameMessage = "50!\nEarn points on occurrences."
             }
             events[5] -> {
-                pointMultiplier += 100
+                spinResult += 100
                 gameMessage = "100!\nEarn points on occurrences."
             }
             events[6] -> {
-                pointMultiplier += 500
+                spinResult += 500
                 gameMessage = "500!\nEarn points on occurrences."
             }
             events[7] -> {
-                pointMultiplier += 1500
+                spinResult += 1500
                 gameMessage = "1500!\nEarn points on occurrences."
             }
         }
-        keyboard = resultIndex > 2
+        showKeyboard = resultIndex > 2
     }
 
+    /**
+     * Resets the game state
+     */
     fun playAgain() {
-        gameWon = false
-        keyboard = false
+        lettersUsed = ""
+        showKeyboard = false
         category = Category.NoCategory
         lives = 5
         points = 0
-        pointMultiplier = 0
-        lettersUsed = ""
-        guessedWord = ""
+        spinResult = 0
+        hiddenWord = ""
         wordToGuess = ""
         gameMessage =""
         startGame()
-    }
-
-    private fun randomCategory(): Category {
-        // TODO: Random not truly random
-        return Category.values()[Random.nextInt(Category.values().size - 1)]
     }
 }

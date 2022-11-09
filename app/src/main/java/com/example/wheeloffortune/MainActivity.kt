@@ -34,7 +34,7 @@ class MainActivity : ComponentActivity() {
                     ) {
                         composable(Screen.GameScreen.route) {
                             // TODO: Dark mode...
-                            GameScreen(viewModel())
+                            GameScreen(GameViewModel(navController))
                         }
                     }
                 }
