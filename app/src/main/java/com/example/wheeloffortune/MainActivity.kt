@@ -15,6 +15,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.wheeloffortune.ui.theme.WheelOfFortuneTheme
 import com.example.wheeloffortune.view.GameScreen
 import com.example.wheeloffortune.view.Screen
+import com.example.wheeloffortune.view.WinScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,19 +23,23 @@ class MainActivity : ComponentActivity() {
         setContent {
             WheelOfFortuneTheme {
                 // A surface container using the 'background' color from the theme
+                // TODO: Dark mode...
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController: NavHostController = rememberNavController()
+                    val gameViewModel = GameViewModel(navController)
                     NavHost(
                         modifier = Modifier,
                         navController = navController,
-                        startDestination = Screen.GameScreen.route
+                        startDestination = Screen.WinScreen.route
                     ) {
                         composable(Screen.GameScreen.route) {
-                            // TODO: Dark mode...
-                            GameScreen(GameViewModel(navController))
+                            GameScreen(gameViewModel)
+                        }
+                        composable(Screen.WinScreen.route) {
+                            WinScreen(gameViewModel)
                         }
                     }
                 }

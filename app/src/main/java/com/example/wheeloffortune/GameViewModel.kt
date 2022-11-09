@@ -5,6 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.wheeloffortune.model.Category
 import kotlin.random.Random
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class GameViewModel(
     private val navController: NavController
@@ -81,6 +84,9 @@ class GameViewModel(
         spinResult = 0
 
         // TODO: Check for winner/loser
+        if(wordToGuess.lowercase() == hiddenWord.lowercase()) {
+            gameWon()
+        }
     }
 
     /**
@@ -126,19 +132,28 @@ class GameViewModel(
         showKeyboard = resultIndex > 2
     }
 
+    private fun gameWon() {
+        viewModelScope.launch {
+            delay(2000)
+            navController.navigate("WinScreen")
+        }
+    }
+
     /**
      * Resets the game state
      */
     fun playAgain() {
+        navController.navigate("GameScreen")
         lettersUsed = ""
         showKeyboard = false
-        category = Category.NoCategory
+        isSpinning = false
         lives = 5
         points = 0
         spinResult = 0
-        hiddenWord = ""
-        wordToGuess = ""
-        gameMessage =""
-        startGame()
+        gameMessage = ""
+        viewModelScope.launch {
+            delay(200)
+            startGame()
+        }
     }
 }
