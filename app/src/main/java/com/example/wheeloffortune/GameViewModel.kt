@@ -2,10 +2,7 @@ package com.example.wheeloffortune
 
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.wheeloffortune.model.Category
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 class GameViewModel : ViewModel() {
@@ -21,7 +18,6 @@ class GameViewModel : ViewModel() {
     var wordToGuess by mutableStateOf("")
     var gameMessage by mutableStateOf("")
     var isSpinning by mutableStateOf(false)
-    var spinResult by mutableStateOf(0f)
     val events = listOf (
         "Extra life", "Miss turn", "Bankrupt", "25", "50", "100", "500", "1500"
     )
@@ -74,12 +70,10 @@ class GameViewModel : ViewModel() {
         }
     }
 
-    suspend fun spinWheel() {
-        val eventIndex = events.indexOf(events.random())
-        spinResult = ((eventIndex+1) * 45f)
+    fun handleSpinResult(resultIndex: Int) {
+        isSpinning = false
 
-        delay(4000)
-        when (events[eventIndex]) {
+        when (events[resultIndex]) {
             events[0] -> {
                 lives++
                 gameMessage = "You gain a life! Spin again"
@@ -113,7 +107,7 @@ class GameViewModel : ViewModel() {
                 gameMessage = "1500!\nEarn points on occurrences."
             }
         }
-        keyboard = eventIndex > 3
+        keyboard = resultIndex > 2
     }
 
     fun playAgain() {
@@ -131,13 +125,7 @@ class GameViewModel : ViewModel() {
     }
 
     private fun randomCategory(): Category {
-        /*var i = 0
-        while(i < 10) {
-            println(IntRange(0,1).random())
-            i += 1
-        }*/
         // TODO: Random not truly random
-        //println(Rando m.nextInt(Category.values().size - 1))
         return Category.values()[Random.nextInt(Category.values().size - 1)]
     }
 }

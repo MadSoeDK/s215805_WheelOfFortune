@@ -1,17 +1,12 @@
 package com.example.wheeloffortune.view
 
 import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -22,7 +17,7 @@ import com.example.wheeloffortune.GameViewModel
 import com.example.wheeloffortune.view.composables.LetterInput
 import com.commandiron.spin_wheel_compose.DefaultSpinWheel
 import com.commandiron.spin_wheel_compose.SpinWheelDefaults
-import kotlinx.coroutines.launch
+import kotlin.random.Random
 
 @Composable
 fun GameScreen(
@@ -73,37 +68,33 @@ fun GameScreen(
                         textAlign = TextAlign.Center
                     )
                     Spacer(modifier = Modifier.height(30.dp))
+                    /**
+                     * Spinner by using this library:     // https://github.com/commandiron/SpinWheelCompose
+                     * @author commandiron
+                     */
                     DefaultSpinWheel(
                         dimensions = SpinWheelDefaults.spinWheelDimensions(
                             spinWheelSize = 280.dp
                         ),
                         animationAttr = SpinWheelDefaults.spinWheelAnimationAttr(
-                            pieCount = viewModel.events.size,
-                            durationMillis = 3000,
-                            //delayMillis = 200,
-                            //rotationPerSecond = 2f,
+                            durationMillis = 3500,
                             easing = LinearOutSlowInEasing,
-                            //startDegree = 180f,
+                            autoResetDelay = 0
                         ),
                         isSpinning = viewModel.isSpinning,
-                        onFinish = { viewModel.isSpinning = false },
-                        resultDegree = viewModel.spinResult
-                    ) { pieIndex ->
+                        resultDegree = Random.nextFloat() * 360f,
+                        onFinish = { viewModel.handleSpinResult(it) }
+                    ){ pieIndex ->
                         Text(text = viewModel.events[pieIndex])
                     }
                     Spacer(modifier = Modifier.height(30.dp))
-                    if (!viewModel.keyboard) {
-                        val coroutineScope = rememberCoroutineScope()
-                        println(viewModel.spinResult)
+                    if (!viewModel.keyboard && !viewModel.isSpinning) {
                         Button(
-                            onClick = {
-                                viewModel.isSpinning = true
-                                coroutineScope.launch {
-                                    viewModel.spinWheel()
-                                }
-                            },
+                            onClick = { viewModel.isSpinning = true },
                             content = { Text(text = "Spin the wheel!", fontSize = 18.sp) }
                         )
+                    } else {
+                        Spacer(modifier = Modifier.height(47.5.dp))
                     }
                 }
 
