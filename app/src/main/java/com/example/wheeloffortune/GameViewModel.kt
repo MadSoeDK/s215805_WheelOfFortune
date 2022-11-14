@@ -83,7 +83,10 @@ class GameViewModel(
 
         spinResult = 0
 
-        // TODO: Check for winner/loser
+        if(lives <= 0) {
+            gameLost()
+        }
+
         if(wordToGuess.lowercase() == hiddenWord.lowercase()) {
             gameWon()
         }
@@ -137,6 +140,17 @@ class GameViewModel(
             delay(2000)
             navController.navigate("WinScreen")
         }
+    }
+
+    private fun gameLost() {
+        viewModelScope.launch {
+            delay(2000)
+            navController.navigate("LoseScreen")
+        }
+    }
+
+    fun beginGame() {
+        navController.navigate("GameScreen")
     }
 
     /**

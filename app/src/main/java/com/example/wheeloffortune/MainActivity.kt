@@ -13,9 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.wheeloffortune.ui.theme.WheelOfFortuneTheme
-import com.example.wheeloffortune.view.GameScreen
-import com.example.wheeloffortune.view.Screen
-import com.example.wheeloffortune.view.WinScreen
+import com.example.wheeloffortune.view.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,13 +31,19 @@ class MainActivity : ComponentActivity() {
                     NavHost(
                         modifier = Modifier,
                         navController = navController,
-                        startDestination = Screen.WinScreen.route
+                        startDestination = Screen.StartScreen.route
                     ) {
                         composable(Screen.GameScreen.route) {
                             GameScreen(gameViewModel)
                         }
                         composable(Screen.WinScreen.route) {
                             WinScreen(gameViewModel)
+                        }
+                        composable(Screen.LoseScreen.route) {
+                            LoseScreen(gameViewModel)
+                        }
+                        composable(Screen.StartScreen.route) {
+                            StartScreen(gameViewModel)
                         }
                     }
                 }
