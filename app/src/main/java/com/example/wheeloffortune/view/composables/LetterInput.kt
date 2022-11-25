@@ -8,13 +8,12 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun LetterInput(
-    lettersUsed: String,
+    usedLetters: String,
     onClick: (Char) -> Unit,
 ) {
     LazyVerticalGrid (
@@ -28,7 +27,7 @@ fun LetterInput(
         alphabets.forEach {
             item {
                 var enabled = true
-                if (lettersUsed.contains(it))
+                if (usedLetters.contains(it))
                     enabled = false
                 LetterButton(letter = it, enabled = enabled) {
                     onClick(it)

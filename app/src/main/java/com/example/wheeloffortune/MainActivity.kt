@@ -6,7 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -36,11 +35,8 @@ class MainActivity : ComponentActivity() {
                         composable(Screen.GameScreen.route) {
                             GameScreen(gameViewModel)
                         }
-                        composable(Screen.WinScreen.route) {
-                            WinScreen(gameViewModel)
-                        }
-                        composable(Screen.LoseScreen.route) {
-                            LoseScreen(gameViewModel)
+                        composable(Screen.StartOver.route) {
+                            NewGameScreen(gameViewModel)
                         }
                         composable(Screen.StartScreen.route) {
                             StartScreen(gameViewModel)

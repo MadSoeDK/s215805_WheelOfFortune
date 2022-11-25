@@ -6,24 +6,30 @@ import androidx.navigation.NavController
 import com.example.wheeloffortune.model.Category
 import kotlin.random.Random
 import androidx.lifecycle.viewModelScope
+import com.example.wheeloffortune.model.GameState
+import com.example.wheeloffortune.view.Screen
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.lang.Math.random
+import java.util.*
 
 class GameViewModel(
     private val navController: NavController
 ) : ViewModel() {
 
-    var lettersUsed by mutableStateOf("")
+    private val _uiState = MutableStateFlow( GameState() )
+    val uiState: StateFlow<GameState> = _uiState.asStateFlow()
+
     var showKeyboard by mutableStateOf(false)
-    var category by mutableStateOf(Category.NoCategory)
-    var lives by mutableStateOf(5)
-    var points by mutableStateOf(0)
+    var isSpinning by mutableStateOf(false)
     var spinResult by mutableStateOf(0)
 
-    var hiddenWord by mutableStateOf("")
-    var wordToGuess by mutableStateOf("")
-    var gameMessage by mutableStateOf("")
-    var isSpinning by mutableStateOf(false)
+    var usedLetters: MutableSet<String> = mutableSetOf()
+
     val events = listOf (
         "Extra life", "Miss turn", "Bankrupt", "25", "50", "100", "500", "1500"
     )
@@ -36,38 +42,36 @@ class GameViewModel(
      * Start the game by choosing a random category and word, and build the string for the hidden word
      */
     private fun startGame() {
-        // TODO: Random not truly random
-        category = Category.values()[Random.nextInt(Category.values().size - 1)]
-        wordToGuess = category.words.random()
+        val category = Category.values().random()
+        val word = "ABCD"//category.words.random()
 
         val sb = StringBuilder()
-        wordToGuess.forEach {
+        word.forEach {
             sb.append("_")
         }
-        hiddenWord = sb.toString()
+        _uiState.value = GameState(
+            category = category,
+            wordToGuess = word,
+            hiddenWord = sb.toString(),
+            lives = 1
+        )
     }
 
     /**
      * OnClickHandler for each letter on the keyboard
      */
-    fun onLetterClick(letter: Char) {
-        guessLetter(letter)
-        showKeyboard = false
-    }
-
-    /**
-     * Check if the letter pressed on the keyboard, have occurrences in the word to guess
-     */
-    private fun guessLetter (guessedLetter: Char) {
-        lettersUsed += guessedLetter
+    fun checkUserGuess(letter: Char) {
+        usedLetters.add(letter.toString())
         var occurrences = 0
+        var hiddenWord = _uiState.value.hiddenWord
+        var points = _uiState.value.points
+        var lives = _uiState.value.lives
+        var gameMessage = _uiState.value.gameMessage
 
-        // For each char in wordToGuess, check if it is equal to the guessedLetter.
-        // Then replace the "_" with the guessedLetter and increment the occurence
-        wordToGuess.forEachIndexed { index, it ->
-            if(it.lowercase() == guessedLetter.lowercase()) {
-                hiddenWord = hiddenWord.replaceRange(index,index+1,guessedLetter.toString())
-                occurrences++;
+        _uiState.value.wordToGuess.forEachIndexed { index, it ->
+            if(it.lowercase() == letter.lowercase()) {
+                hiddenWord = hiddenWord.replaceRange(index,index+1, letter.toString())
+                occurrences++
             }
         }
 
@@ -81,15 +85,24 @@ class GameViewModel(
             gameMessage = "Incorrect guess. You loose a life!"
         }
 
+        _uiState.update {
+            it.copy(
+                hiddenWord = hiddenWord,
+                points = points,
+                lives = lives,
+                gameMessage = gameMessage,
+            )
+        }
+
         spinResult = 0
 
-        if(lives <= 0) {
-            gameLost()
+        // If player has won or lost
+        if(_uiState.value.lives <= 0 || _uiState.value.wordToGuess.lowercase() == hiddenWord.lowercase()) {
+            if (_uiState.value.wordToGuess.lowercase() == hiddenWord.lowercase())
+                _uiState.update { it.copy(gameWon = true) }
+           gameOver()
         }
-
-        if(wordToGuess.lowercase() == hiddenWord.lowercase()) {
-            gameWon()
-        }
+        showKeyboard = false
     }
 
     /**
@@ -97,6 +110,8 @@ class GameViewModel(
      */
     fun handleSpinResult(resultIndex: Int) {
         isSpinning = false
+        var lives = _uiState.value.lives
+        var gameMessage = _uiState.value.gameMessage
 
         when (events[resultIndex]) {
             events[0] -> {
@@ -108,7 +123,7 @@ class GameViewModel(
                 gameMessage = "Miss turn! \nYou loose a life! Spin again"
             }
             events[2] -> {
-                points = 0
+                _uiState.update { it.copy(points = 0) }
                 gameMessage = "Bankrupt!\nYou loose all points! Spin again"
             }
             events[3] -> {
@@ -133,38 +148,34 @@ class GameViewModel(
             }
         }
         showKeyboard = resultIndex > 2
-    }
-
-    private fun gameWon() {
-        viewModelScope.launch {
-            delay(2000)
-            navController.navigate("WinScreen")
+        _uiState.update {
+            it.copy(
+                lives = lives,
+                gameMessage = gameMessage,
+            )
         }
     }
 
-    private fun gameLost() {
+    private fun gameOver() {
         viewModelScope.launch {
-            delay(2000)
-            navController.navigate("LoseScreen")
+            delay(1000)
+            navController.navigate(Screen.StartOver.route)
         }
     }
 
     fun beginGame() {
-        navController.navigate("GameScreen")
+        navController.navigate(Screen.GameScreen.route)
     }
 
     /**
      * Resets the game state
      */
     fun playAgain() {
-        navController.navigate("GameScreen")
-        lettersUsed = ""
+        navController.navigate(Screen.GameScreen.route)
         showKeyboard = false
         isSpinning = false
-        lives = 5
-        points = 0
-        spinResult = 0
-        gameMessage = ""
+        usedLetters.clear()
+        //_uiState.value = GameState()
         viewModelScope.launch {
             delay(200)
             startGame()

@@ -17,6 +17,8 @@ import com.example.wheeloffortune.GameViewModel
 import com.example.wheeloffortune.view.composables.LetterInput
 import com.commandiron.spin_wheel_compose.DefaultSpinWheel
 import com.commandiron.spin_wheel_compose.SpinWheelDefaults
+import com.example.wheeloffortune.view.composables.LetterBox
+import java.util.*
 import kotlin.random.Random
 
 @Composable
@@ -29,6 +31,8 @@ fun GameScreen(
             .fillMaxHeight(),
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
+        val state by viewModel.uiState.collectAsState()
+
         Column {
             Row(
                 modifier = Modifier
@@ -36,8 +40,8 @@ fun GameScreen(
                     .padding(0.dp, 12.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(text = "Score: " + viewModel.points.toString())
-                Text(text = "Lives: " + viewModel.lives.toString())
+                Text(text = "Score: " + state.points.toString())
+                Text(text = "Lives: " + state.lives.toString())
             }
             Column(
                 modifier = Modifier
@@ -45,9 +49,10 @@ fun GameScreen(
                     .padding(0.dp, 30.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = viewModel.category.toString())
+                Text(text = state.category.toString())
                 Spacer(modifier = Modifier.height(10.dp))
-                Text(text = viewModel.hiddenWord, fontSize = 24.sp, letterSpacing = 5.sp)
+                //Text(text = state.hiddenWord, fontSize = 24.sp, letterSpacing = 5.sp)
+                LetterBox(hiddenWord = state.hiddenWord)
             }
         }
         Box (
@@ -60,7 +65,7 @@ fun GameScreen(
                 verticalArrangement = Arrangement.Top
             ) {
                 Text(
-                    text = viewModel.gameMessage,
+                    text = state.gameMessage,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Medium,
                     textAlign = TextAlign.Center
@@ -82,15 +87,18 @@ fun GameScreen(
                         autoResetDelay = 0
                     ),
                     isSpinning = viewModel.isSpinning,
-                    resultDegree = Random.nextFloat() * 360f,
+                    resultDegree = Random(Date().time).nextFloat() * 360f,
                     onFinish = { viewModel.handleSpinResult(it) }
                 ){ pieIndex ->
                     Text(text = viewModel.events[pieIndex])
                 }
+
                 Spacer(modifier = Modifier.height(30.dp))
+
                 if (!viewModel.showKeyboard && !viewModel.isSpinning) {
                     Button(
                         onClick = { viewModel.isSpinning = true },
+                        enabled = !state.gameWon,
                         content = { Text(text = "Spin the wheel!", fontSize = 18.sp) }
                     )
                 } else {
@@ -99,15 +107,8 @@ fun GameScreen(
             }
 
             if (viewModel.showKeyboard) {
-                LetterInput(viewModel.lettersUsed) { viewModel.onLetterClick(it) }
+                LetterInput(viewModel.usedLetters.toString()) { viewModel.checkUserGuess(it) }
             }
         }
     }
-
-}
-
-@Composable
-@Preview(showBackground = true)
-fun GameScreenPreview() {
-    GameScreen(viewModel = viewModel())
 }
