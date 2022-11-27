@@ -24,7 +24,7 @@ fun NewGameScreen(
         modifier = Modifier.padding(0.dp, 30.dp).fillMaxWidth()
     ) {
         Text(
-            text = if (state.gameWon) "You Have Won!" else "You Have Lost!",
+            text = if (state.gameWon) "You Win!" else "You Lose!",
             fontSize = 28.sp, fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(0.dp, 20.dp)
         )

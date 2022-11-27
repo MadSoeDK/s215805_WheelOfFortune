@@ -18,6 +18,7 @@ import com.example.wheeloffortune.view.composables.LetterInput
 import com.commandiron.spin_wheel_compose.DefaultSpinWheel
 import com.commandiron.spin_wheel_compose.SpinWheelDefaults
 import com.example.wheeloffortune.view.composables.LetterBox
+import java.lang.Math.random
 import java.util.*
 import kotlin.random.Random
 
@@ -40,10 +41,10 @@ fun GameScreen(
                     .padding(0.dp, 12.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(text = "Score: " + state.points.toString())
+                Text(text = "Points: " + state.points.toString())
                 Text(text = "Lives: " + state.lives.toString())
             }
-            Column(
+            Column (
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(0.dp, 30.dp),
@@ -51,7 +52,6 @@ fun GameScreen(
             ) {
                 Text(text = state.category.toString())
                 Spacer(modifier = Modifier.height(10.dp))
-                //Text(text = state.hiddenWord, fontSize = 24.sp, letterSpacing = 5.sp)
                 LetterBox(hiddenWord = state.hiddenWord)
             }
         }
@@ -89,8 +89,11 @@ fun GameScreen(
                     isSpinning = viewModel.isSpinning,
                     resultDegree = Random(Date().time).nextFloat() * 360f,
                     onFinish = { viewModel.handleSpinResult(it) }
-                ){ pieIndex ->
-                    Text(text = viewModel.events[pieIndex])
+                ) { pieIndex ->
+                    Text(text =
+                        if (pieIndex == 0) "Bankrupt"
+                        else viewModel.events[pieIndex].toString()
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(30.dp))

@@ -30,8 +30,9 @@ class GameViewModel(
 
     var usedLetters: MutableSet<String> = mutableSetOf()
 
-    val events = listOf (
-        "Extra life", "Miss turn", "Bankrupt", "25", "50", "100", "500", "1500"
+    val events = listOf(
+        //"Extra life", "Miss turn", "Bankrupt", "25", "50", "100", "500", "1500",
+        0, 25, 50, 100, 500, 750, 1000, 1500
     )
 
     init {
@@ -110,48 +111,23 @@ class GameViewModel(
      */
     fun handleSpinResult(resultIndex: Int) {
         isSpinning = false
-        var lives = _uiState.value.lives
+        var points = _uiState.value.points
         var gameMessage = _uiState.value.gameMessage
 
-        when (events[resultIndex]) {
-            events[0] -> {
-                lives++
-                gameMessage = "You gain a life! Spin again"
-            }
-            events[1] -> {
-                lives--
-                gameMessage = "Miss turn! \nYou loose a life! Spin again"
-            }
-            events[2] -> {
-                _uiState.update { it.copy(points = 0) }
-                gameMessage = "Bankrupt!\nYou loose all points! Spin again"
-            }
-            events[3] -> {
-                spinResult += 25
-                gameMessage = "25!\nEarn points on occurrences."
-            }
-            events[4] -> {
-                spinResult += 50
-                gameMessage = "50!\nEarn points on occurrences."
-            }
-            events[5] -> {
-                spinResult += 100
-                gameMessage = "100!\nEarn points on occurrences."
-            }
-            events[6] -> {
-                spinResult += 500
-                gameMessage = "500!\nEarn points on occurrences."
-            }
-            events[7] -> {
-                spinResult += 1500
-                gameMessage = "1500!\nEarn points on occurrences."
-            }
+        // If bankrupt
+        if (events[resultIndex] == 0) {
+            points = 0
+            gameMessage = "Bankrupt!\nYou loose all points! Spin again"
+        } else {
+            spinResult += events[resultIndex]
+            gameMessage = "Earn $spinResult points on every occurrence."
         }
+
         showKeyboard = resultIndex > 2
         _uiState.update {
             it.copy(
-                lives = lives,
                 gameMessage = gameMessage,
+                points = points,
             )
         }
     }

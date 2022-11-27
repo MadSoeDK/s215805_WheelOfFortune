@@ -32,11 +32,7 @@ fun LetterBox(
 
                     ) {
                     Text(
-                        text = if(hiddenWord[index].toString() != "_") {
-                            char.toString().uppercase()
-                        } else {
-                            ""
-                        },
+                        text = if(hiddenWord[index].toString() != "_") char.toString().uppercase() else "",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.SemiBold
                     )
