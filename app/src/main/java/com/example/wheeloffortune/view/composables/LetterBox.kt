@@ -10,8 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.*
 
 @Composable
 fun LetterBox(
@@ -20,24 +19,24 @@ fun LetterBox(
     LazyVerticalGrid(
         columns = GridCells.Adaptive(30.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalArrangement = Arrangement.Center
     ) {
         hiddenWord.forEachIndexed { index, char ->
             item {
                 Box(
                     modifier = Modifier
-                        .background(Color.LightGray)
-                        .padding(6.dp, 6.dp),
+                        .padding(3.dp, 0.dp).background(Color.LightGray),
                     contentAlignment = Alignment.Center,
-
                     ) {
                     Text(
+                        modifier = Modifier.padding(2.dp, 6.dp),
+                        letterSpacing = 0.sp,
                         text = if(hiddenWord[index].toString() != "_") char.toString().uppercase() else "",
                         fontSize = 20.sp,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.SemiBold,
                     )
                 }
-            }
         }
     }
+}
 }

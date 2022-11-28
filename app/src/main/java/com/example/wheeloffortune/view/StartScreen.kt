@@ -23,6 +23,7 @@ fun StartScreen(
         verticalArrangement = Arrangement.Center
     ) {
         Text(text = "Wheel of Fortune", fontSize = 36.sp, fontWeight = FontWeight.Black)
+        Text(text = "Made by Mads Sørensen(s215805)")
         Spacer(modifier = Modifier.height(50.dp))
         Button(
             onClick = { viewModel.beginGame() }

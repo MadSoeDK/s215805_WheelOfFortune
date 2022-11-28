@@ -52,7 +52,11 @@ fun GameScreen(
             ) {
                 Text(text = state.category.toString())
                 Spacer(modifier = Modifier.height(10.dp))
-                LetterBox(hiddenWord = state.hiddenWord)
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    LetterBox(hiddenWord = state.hiddenWord)
+                }
             }
         }
         Box (
