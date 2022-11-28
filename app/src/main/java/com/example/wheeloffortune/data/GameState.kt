@@ -1,4 +1,4 @@
-package com.example.wheeloffortune.model
+package com.example.wheeloffortune.data
 
 data class GameState (
     var category: Category?,

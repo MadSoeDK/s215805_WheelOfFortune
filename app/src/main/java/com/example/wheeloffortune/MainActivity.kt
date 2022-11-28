@@ -14,6 +14,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.wheeloffortune.ui.theme.WheelOfFortuneTheme
 import com.example.wheeloffortune.view.*
+import com.example.wheeloffortune.view.screens.GameScreen
+import com.example.wheeloffortune.view.screens.NewGameScreen
+import com.example.wheeloffortune.view.screens.StartScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,4 +48,11 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+}
+
+// Screen routes
+sealed class Screen(val route: String) {
+    object StartScreen : Screen("StartScreen")
+    object GameScreen : Screen("GameScreen")
+    object StartOver : Screen("StartOver")
 }

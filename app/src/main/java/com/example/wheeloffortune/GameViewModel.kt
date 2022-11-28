@@ -3,18 +3,13 @@ package com.example.wheeloffortune
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
-import com.example.wheeloffortune.model.Category
+import com.example.wheeloffortune.data.Category
 import kotlin.random.Random
-import androidx.lifecycle.viewModelScope
-import com.example.wheeloffortune.model.GameState
-import com.example.wheeloffortune.view.Screen
-import kotlinx.coroutines.delay
+import com.example.wheeloffortune.data.GameState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import java.lang.Math.random
 import java.util.*
 
 class GameViewModel(
@@ -59,7 +54,7 @@ class GameViewModel(
                 category = category,
                 wordToGuess = word,
                 hiddenWord = sb.toString(),
-                lives = 1,
+                lives = 5,
                 gameMessage = "",
                 points = 0,
                 gameWon = false

@@ -1,4 +1,4 @@
-package com.example.wheeloffortune.view
+package com.example.wheeloffortune.view.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
